@@ -2,6 +2,9 @@ import { createClient } from "@supabase/supabase-js";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 const MovieCard = ({ movie }) => {
   const navigate = useNavigate();
