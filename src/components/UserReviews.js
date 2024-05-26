@@ -3,17 +3,55 @@ import { createClient } from "@supabase/supabase-js";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+const MovieCard = ({ movie, review }) => {
+  const navigate = useNavigate();
+
+  const handleMovieClick = () => {
+    navigate(`/movie/${movie.id}`);
+  };
+
+  return (
+    <div
+      style={{
+        color: "#fff",
+        padding: "10px",
+        borderRadius: "5px",
+        boxShadow: "0 0 10px rgba(0, 0, 0, 0.2)",
+        margin: "10px",
+        width: "50",
+
+        textAlign: "center",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+      }}
+      // className="movie_card"
+    >
+      <img
+        src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+        alt={movie.title}
+        //
+        style={{ width: "200px", height: "200px", cursor: "pointer" }}
+        onClick={handleMovieClick}
+      />
+      <div>
+        <h3 style={{ fontSize: "20px", margin: "10px auto" }}>{movie.title}</h3>
+        <p>{review}</p>
+      </div>
+    </div>
+  );
+};
+
 const UserReview = () => {
-  const supabaseUrl = "https://ksnouxckabitqorjucgz.supabase.com";
+  const supabaseUrl = "https://ksnouxckabitqorjucgz.supabase.co";
   const supabaseAnonKey =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtzbm91eGNrYWJpdHFvcmp1Y2d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTQ0MzM4ODgsImV4cCI6MjAzMDAwOTg4OH0.17MF1DByop1lCcnefGB8t3AcS1CGcJvbzunwY3QbK_c";
+
   const supabase = createClient(supabaseUrl, supabaseAnonKey);
   const [session, setSession] = useState(null);
-  const [review, setReview] = useState([]);
-  const [userData, setUserData] = useState(null);
-
-  const [movie, setMovie] = useState([]);
   const [movies, setMovies] = useState([]);
+  const [review, setReview] = useState([]);
+  const [create, setCreate] = useState([]);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -23,137 +61,92 @@ const UserReview = () => {
         console.error("Error fetching user data:", error.message);
       } else {
         setSession(data.session);
-        setUserData(data.session.user);
       }
     };
 
     fetchUserData();
   }, []);
+
   useEffect(() => {
-    const fetchRatingData = async () => {
-      if (userData) {
+    const fetchReviewData = async () => {
+      if (session) {
         const { data, error } = await supabase
           .from("reviews")
-          .select("*")
-          .eq("user_id", session.user.id);
-        // .order("created_at", { ascending: false }) // Tri par date (du plus récent au plus ancien)
-        // .limit(1); // Récupère uniquement la première entrée (la plus récente)
-
+          .select("movie_id,review,created_at")
+          .eq("user_id", session.user.id)
+          .order("created_at", {
+            ascending: false,
+          });
         if (error) {
           console.error(
             "Erreur lors de la récupération des notations :",
             error.message
           );
         } else {
-          setMovies((prevmovie) => [...prevmovie, data]);
-          console.log(movies);
+          // console.log(data);
+          setReview(data);
         }
       }
     };
-    fetchRatingData();
+    fetchReviewData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userData]);
+  }, [session]);
   const fetchMovieDetails = async (movieId) => {
     const options = {
       method: "GET",
-      headers: {
-        accept: "application/json",
+      url: `https://api.themoviedb.org/3/movie/${movieId}`,
+      params: {
+        api_key: "b2efe9b0108d8645f514bc9b0363d199",
       },
     };
 
-    fetch(
-      `https://api.themoviedb.org/3/find/${movieId}?api_key=b2efe9b0108d8645f514bc9b0363d199&external_source=imdb_id`,
-      options
-    )
-      .then((response) => response.json())
-      .then((response) => {
-        console.log(response.movie_results);
-        setMovie(response.movie_results);
-        console.log(movie);
-      })
-      .catch((err) => console.error(err));
+    try {
+      const response = await axios.request(options);
+      setMovies((prevMovies) => [...prevMovies, response.data]);
+      // console.log(movies);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   useEffect(() => {
     const fetchMovies = async () => {
-      for (const item of movies) {
-        for (const i of item) {
-          await fetchMovieDetails(i.movie_id);
-          setReview(i.review);
-          console.log(i.movie_id);
-        }
+      for (const item of review) {
+        await fetchMovieDetails(item.movie_id);
+        setCreate(item.created_at);
+
         console.log(item);
+        console.log(create);
       }
-      console.log(review);
     };
 
     fetchMovies();
-    setMovies([]);
-  }, []);
-  const navigate = useNavigate();
 
-  const handleMovieClick = () => {
-    navigate(`/movie/${movie.movie_id}`);
-  };
+    setMovies([]);
+  }, [review]);
+
   return (
-    <div className="rating">
-      <h2 style={{ color: "gold" }}>Your Reviews</h2>
-      <p style={{ color: "white" }}>Most Recently Review</p>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          margin: "10px",
-        }}
-      >
-        {review ? (
-          <div>
-            {movie.map((item) => (
-              <div
-                onClick={handleMovieClick}
-                style={{
-                  backgroundColor: "#000",
-                  color: "#fff",
-                  padding: "10px",
-                  borderRadius: "5px",
-                  boxShadow: "0 0 10px rgba(0, 0, 0, 0.2)",
-                  margin: "10px",
-                  width: "100%",
-                  height: "200px",
-                  textAlign: "center",
-                  display: "flex",
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-                className="movie_card"
-                key={item.movie_id}
-              >
-                <img
-                  src={`https://image.tmdb.org/t/p/original${item.poster_path}`}
-                  style={{ width: "150px", height: "150px" }}
-                  alt={item.title}
-                />
-                <div>
-                  <h3
-                    style={{
-                      fontSize: "20px",
-                      margin: "10px auto",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {item.title}
-                  </h3>
-                  <p> Review: {review}</p>
-                </div>
-              </div>
-            ))}
+    <div className="watchlist">
+      <div className="lists">
+        <div>
+          <div className="rating">
+            <h2 style={{ color: "gold" }}>Your Review</h2>
+            <p style={{ color: "white" }}>Most Recently Review</p>
+            <div>
+              {movies ? (
+                movies.map((movie, index) => {
+                  return (
+                    <div key={`${movie.id}-${index}`}>
+                      <MovieCard movie={movie} review={review[index]?.review} />
+                    </div>
+                  );
+                })
+              ) : (
+                <div>No movies You had review </div>
+              )}{" "}
+            </div>
           </div>
-        ) : (
-          <div>No movie has review. Add review to see it</div>
-        )}
+        </div>
       </div>
     </div>
   );
