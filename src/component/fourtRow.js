@@ -17,6 +17,7 @@ function FourthRow(props) {
   const [companies, setCompanies] = useState([]);
   const [showReview, setShowReview] = useState(false);
   const [reviewText, setReviewText] = useState("");
+
   const [whatchReview, setWhatchReview] = useState([]);
   const [showReviews, setShowReviews] = useState(false);
 
@@ -135,15 +136,14 @@ function FourthRow(props) {
         return;
       }
       try {
-        const { data, error } = await supabase
-          .from("reviews")
-          .insert([
-            {
-              movie_id: props.data.imdbID,
-              review: reviewText,
-              user_id: user.id,
-            },
-          ]);
+        const { data, error } = await supabase.from("reviews").insert([
+          {
+            movie_id: props.data.imdbID,
+            review: reviewText,
+            user_id: user.id,
+          },
+        ]);
+
         if (error) {
           console.error("Error adding review movie :", error);
           return;
