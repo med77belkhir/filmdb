@@ -12,19 +12,16 @@ function Header() {
   );
 
   const navigate = useNavigate();
-  // const location = useLocation();
 
   const [user, setUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showSearchResults, setShowSearchResults] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser();
+      const { data: { user }, error } = await supabase.auth.getUser();
       if (error) {
         console.error("Error fetching user data:", error.message);
       } else {
@@ -64,9 +61,7 @@ function Header() {
       }
     };
 
-    const delayDebounceFn = setTimeout(() => {
-      fetchSearchResults();
-    }, 500);
+    const delayDebounceFn = setTimeout(fetchSearchResults, 500);
 
     return () => clearTimeout(delayDebounceFn);
   }, [searchTerm]);
@@ -91,15 +86,29 @@ function Header() {
     e.preventDefault();
     if (searchTerm.trim()) {
       navigate(`/search?q=${searchTerm.trim()}`);
+      setShowSearchResults(false);
     }
   };
 
   const handleSearchInput = (e) => {
     setSearchTerm(e.target.value);
+    setShowSearchResults(true);
   };
 
   const handleSearchResultClick = (result) => {
     navigate(`/movie/${result.id}`, { state: result });
+    setSearchTerm("");
+    setShowSearchResults(false);
+  };
+
+  const handleSearchBlur = (e) => {
+    setTimeout(() => {
+      setShowSearchResults(false);
+    }, 100);
+  };
+
+  const handleSearchFocus = () => {
+    setShowSearchResults(true);
   };
 
   return (
@@ -141,25 +150,29 @@ function Header() {
               placeholder="Search..."
               value={searchTerm}
               onChange={handleSearchInput}
+              onBlur={handleSearchBlur}
+              onFocus={handleSearchFocus}
             />
             <button className="btn btn-primary btn-sm" type="submit">
               <i className="bi bi-search"></i>
             </button>
           </form>
-          {searchResults.length > 0 && (
+          {showSearchResults && searchResults.length > 0 && (
             <div className="search-results-dropdown">
               {searchResults.map((result, index) => (
                 <div
                   key={index}
                   className="search-result-item d-flex align-items-center"
-                  onClick={() => handleSearchResultClick(result)}
+                  onMouseDown={() => handleSearchResultClick(result)}
                 >
-                  {result.poster_path && (
+                  {result.poster_path ? (
                     <img
                       src={`https://image.tmdb.org/t/p/w185/${result.poster_path}`}
                       alt={result.title}
                       className="search-result-image"
                     />
+                  ) : (
+                    <div className="no-image-placeholder">No Image</div>
                   )}
                   <span>{result.title}</span>
                 </div>
@@ -190,8 +203,6 @@ function Header() {
             </Link>
           </div>
         )}
-
-      
       </header>
     </>
   );
