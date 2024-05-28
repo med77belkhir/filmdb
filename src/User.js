@@ -65,6 +65,8 @@ function User() {
           )}
 
           <UserWatchist />
+          <Userrating />
+          <UserReview />
         </section>
       </main>
       <Footer />
