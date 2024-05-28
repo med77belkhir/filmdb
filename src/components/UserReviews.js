@@ -51,7 +51,7 @@ const UserReview = () => {
   const [session, setSession] = useState(null);
   const [movies, setMovies] = useState([]);
   const [review, setReview] = useState([]);
-  const [create, setCreate] = useState([]);
+  
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -113,7 +113,7 @@ const UserReview = () => {
     const fetchMovies = async () => {
       for (const item of review) {
         await fetchMovieDetails(item.movie_id);
-        setCreate(item.created_at);
+      
 
         console.log(item);
         console.log(create);

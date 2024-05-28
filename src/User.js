@@ -4,7 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import Header from "./Header";
 import "./UserStyle.css";
 import Footer from "./Footer";
-import Userrating from "./components/UserRating";
+import UserRating from "./components/UserRating";
 import UserWatchist from "./components/UserWatchlist";
 import UserReview from "./components/UserReviews";
 
@@ -63,9 +63,10 @@ function User() {
               </div>
             </div>
           )}
-
           <UserWatchist />
-          <Userrating />
+
+          <UserRating />
+
           <UserReview />
         </section>
       </main>
