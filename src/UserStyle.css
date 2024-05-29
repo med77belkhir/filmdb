@@ -9,12 +9,6 @@ main {
   padding: 0 10px;
 }
 
-.setting,
-.quicklinks,
-.RatingAnalysse,
-.Share {
-  width: 100%;
-}
 .Credentials {
   display: flex;
   justify-content: space-between;

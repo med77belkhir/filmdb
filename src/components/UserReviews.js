@@ -52,6 +52,7 @@ const UserReview = () => {
   const [movies, setMovies] = useState([]);
   const [review, setReview] = useState([]);
 
+
   useEffect(() => {
     const fetchUserData = async () => {
       const { data, error } = await supabase.auth.getSession();
@@ -113,8 +114,10 @@ const UserReview = () => {
       for (const item of review) {
         await fetchMovieDetails(item.movie_id);
 
+
         console.log(item);
         // console.log(create);
+
       }
     };
 
