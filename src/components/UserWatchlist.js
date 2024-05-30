@@ -121,7 +121,17 @@ const UserWatchlist = () => {
     <div className="watchlist">
       <div className="lists">
         <div className="rating">
-          <h2 style={{ color: "gold" }}>Your Watchlist </h2>
+          <h2
+            style={{
+              color: "gold",
+              fontWeight: "bold",
+              textAlign: "center",
+              fontSize: "40px",
+              marginBottom: "20px",
+            }}
+          >
+            Your Watchlist{" "}
+          </h2>
           <div>
             <Slider
               dots={true}

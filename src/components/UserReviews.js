@@ -2,8 +2,10 @@ import { createClient } from "@supabase/supabase-js";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "../Watchlist.css";
+import User from "../User";
 
-const MovieCard = ({ movie, review }) => {
+const MovieCard = ({ movie, review, create }) => {
   const navigate = useNavigate();
 
   const handleMovieClick = () => {
@@ -11,33 +13,31 @@ const MovieCard = ({ movie, review }) => {
   };
 
   return (
-    <div
-      style={{
-        color: "#fff",
-        padding: "10px",
-        borderRadius: "5px",
-        boxShadow: "0 0 10px rgba(0, 0, 0, 0.2)",
-        margin: "10px",
-        width: "50",
-
-        textAlign: "center",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-      }}
-      // className="movie_card"
-    >
-      <img
-        src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-        alt={movie.title}
-        //
-        style={{ width: "200px", height: "200px", cursor: "pointer" }}
-        onClick={handleMovieClick}
-      />
-      <div>
-        <h3 style={{ fontSize: "20px", margin: "10px auto" }}>{movie.title}</h3>
-        <p>{review}</p>
+    <div className="my-watchlist-movie-item mb-4">
+      <div className="d-flex align-items-start">
+        <img
+          src={`https://image.tmdb.org/t/p/w200/${movie.poster_path}`}
+          className="my-watchlist-img-thumbnail me-3"
+          alt={movie.title}
+          onClick={handleMovieClick}
+          style={{ cursor: "pointer" }}
+        />
+        <div className="flex-grow-1">
+          <h5 className="mb-1" style={{ color: "yellow", fontWeight: "bold" }}>
+            {movie.title}
+          </h5>
+          <p className="mb-1 text-white">
+            {create.substr(0, 10)} {create.substr(12, 4)}
+          </p>
+          <p
+            className="my-watchlist-movie-overview text-white"
+            style={{ fontSize: "20px" }}
+          >
+            {review}
+          </p>
+        </div>
       </div>
+      <hr style={{ color: "yellow" }} />
     </div>
   );
 };
@@ -50,8 +50,7 @@ const UserReview = () => {
   const supabase = createClient(supabaseUrl, supabaseAnonKey);
   const [session, setSession] = useState(null);
   const [movies, setMovies] = useState([]);
-  const [review, setReview] = useState([]);
-
+  const [reviews, setReviews] = useState([]);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -72,25 +71,23 @@ const UserReview = () => {
       if (session) {
         const { data, error } = await supabase
           .from("reviews")
-          .select("movie_id,review,created_at")
+          .select("movie_id, review, created_at")
           .eq("user_id", session.user.id)
           .order("created_at", {
             ascending: false,
           });
+
         if (error) {
-          console.error(
-            "Erreur lors de la récupération des notations :",
-            error.message
-          );
+          console.error("Error fetching reviews:", error.message);
         } else {
-          // console.log(data);
-          setReview(data);
+          setReviews(data);
         }
       }
     };
+
     fetchReviewData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
+
   const fetchMovieDetails = async (movieId) => {
     const options = {
       method: "GET",
@@ -102,49 +99,74 @@ const UserReview = () => {
 
     try {
       const response = await axios.request(options);
-      setMovies((prevMovies) => [...prevMovies, response.data]);
-      // console.log(movies);
+      return response.data;
     } catch (error) {
       console.error(error);
+      return null;
     }
   };
 
   useEffect(() => {
     const fetchMovies = async () => {
-      for (const item of review) {
-        await fetchMovieDetails(item.movie_id);
-
-
-        console.log(item);
-        // console.log(create);
-
+      const fetchedMovies = [];
+      for (const item of reviews) {
+        const movie = await fetchMovieDetails(item.movie_id);
+        if (movie) {
+          fetchedMovies.push({
+            ...movie,
+            review: item.review,
+            created_at: item.created_at,
+          });
+        }
       }
+      setMovies(fetchedMovies);
     };
 
     fetchMovies();
-
-    setMovies([]);
-  }, [review]);
+  }, [reviews]);
 
   return (
-    <div className="watchlist">
+    <div
+      className="watchlist"
+      style={{ transition: "box-shadow 0.3s ease-in-out" }}
+    >
       <div className="lists">
         <div>
           <div className="rating">
-            <h2 style={{ color: "gold" }}>Your Review</h2>
-            <p style={{ color: "white" }}>Most Recently Review</p>
-            <div>
+            <h2
+              style={{
+                color: "gold",
+                textAlign: "center",
+                fontWeight: "bold",
+                fontSize: "40px",
+              }}
+            >
+              Your Review
+            </h2>
+            <p style={{ color: "white", fontWeight: "bold", fontSize: "20px" }}>
+              Most Recently Review
+            </p>
+            <div
+              style={{
+                maxHeight: "500px" /* adjust the height as needed */,
+                overflowY: "auto",
+              }}
+            >
               {movies ? (
                 movies.map((movie, index) => {
                   return (
                     <div key={`${movie.id}-${index}`}>
-                      <MovieCard movie={movie} review={review[index]?.review} />
+                      <MovieCard
+                        movie={movie}
+                        review={movie.review}
+                        create={movie.created_at}
+                      />
                     </div>
                   );
                 })
               ) : (
                 <div>No movies You had review </div>
-              )}{" "}
+              )}
             </div>
           </div>
         </div>
@@ -152,5 +174,4 @@ const UserReview = () => {
     </div>
   );
 };
-
 export default UserReview;

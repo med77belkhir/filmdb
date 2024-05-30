@@ -43,17 +43,19 @@ function User() {
         <section className="section-one">
           {session && session.user && (
             <div className="Credentials">
-              <div>
+              <div className="user-info">
                 <img src={session.user.user_metadata.picture} alt="profile" />
-                <h1 style={{ color: "white" }}>
-                  {session.user.user_metadata.name}
-                </h1>
-                <p style={{ color: "white" }}>
-                  FilmDB member since{" "}
-                  {new Date(session.user.created_at).toLocaleDateString()}
-                </p>
+                <div className="user-details">
+                  <h1 style={{ color: "white" }}>
+                    {session.user.user_metadata.name}
+                  </h1>
+                  <p style={{ color: "white" }}>
+                    FilmDB member since{" "}
+                    {new Date(session.user.created_at).toLocaleDateString()}
+                  </p>
+                </div>
               </div>
-              <div>
+              <div className="user-actions">
                 <ul>
                   <li>
                     <a href="/update-Password">Update Password</a>

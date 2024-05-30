@@ -5,8 +5,9 @@ import { useNavigate } from "react-router-dom";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import Rating from "react-rating-stars-component";
 
-const MovieCard = ({ movie, rating }) => {
+const MovieCard = ({ movie, rating, create }) => {
   const navigate = useNavigate();
 
   const handleMovieClick = () => {
@@ -24,7 +25,7 @@ const MovieCard = ({ movie, rating }) => {
         boxShadow: "0 0 10px rgba(0, 0, 0, 0.2)",
         margin: "10px",
         width: "250px",
-        height: "300px",
+        height: "350px",
         textAlign: "center",
         cursor: "pointer",
       }}
@@ -36,7 +37,15 @@ const MovieCard = ({ movie, rating }) => {
         style={{ width: "200px", height: "200px" }}
       />
       <h3 style={{ fontSize: "20px", margin: "10px auto" }}>{movie.title}</h3>
-      <p>{rating}</p>
+      {/* <p>{rating}</p> */}
+      <Rating
+        count={5}
+        value={rating}
+        size={24}
+        activeColor="#ffd700"
+        isHalf={true}
+        edit={false}
+      />
     </div>
   );
 };
@@ -104,46 +113,65 @@ const UserRating = () => {
 
     try {
       const response = await axios.request(options);
-      setMovies((prevMovies) => [...prevMovies, response.data]);
+      // setMovies((prevMovies) => [...prevMovies, response.data]);
+      return response.data;
+
       // console.log(movies);
     } catch (error) {
       console.error(error);
+      return null;
     }
   };
 
+  // useEffect(() => {
+  //   const fetchMovies = async () => {
+  //     for (const item of rating) {
+  //       await fetchMovieDetails(item.movie_id);
+  //       setMoviesRating(item.rating);
+  //     }
+  //   };
+
+  //   fetchMovies();
+
+  //   setMovies([]);
+  // }, [rating]);
+
   useEffect(() => {
     const fetchMovies = async () => {
+      const fetchedMovies = [];
       for (const item of rating) {
-        await fetchMovieDetails(item.movie_id);
-        setMoviesRating(item.rating);
+        const movie = await fetchMovieDetails(item.movie_id);
+        if (movie) {
+          fetchedMovies.push({
+            ...movie,
+            review: item.review,
+          });
+        }
       }
+      setMovies(fetchedMovies);
     };
 
     fetchMovies();
-
-    setMovies([]);
   }, [rating]);
-
   return (
     <div className="watchlist">
       <div className="lists">
         <div>
           <div className="rating">
-            <h2 style={{ color: "gold" }}>Your Rating</h2>
-            <p style={{ color: "white" }}>Most Recently Rated</p>
+            <h2
+              style={{
+                color: "gold",
+                textAlign: "center",
+                fontWeight: "bold",
+                fontSize: "40px",
+              }}
+            >
+              Your Rating
+            </h2>
+            <p style={{ color: "white", fontWeight: "bold", fontSize: "20px" }}>
+              Most Recently Rated
+            </p>
             <div>
-              {/*               
-              {movies ? (
-                movies.map((movie, index) => (
-                  <MovieCard
-                    key={movie.id}
-                    movie={movie}
-                    rating={rating[index]?.rating}
-                  />
-                ))
-              ) : (
-                <div>No movies in the watchlist </div>
-              )}{" "} */}
               <Slider
                 dots={true}
                 infinite={false}
