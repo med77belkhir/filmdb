@@ -29,6 +29,7 @@ function User() {
       } else {
         setSession(data.session);
         setUserData(data.session.user);
+        console.log(data.session);
       }
     };
 
