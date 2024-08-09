@@ -326,9 +326,12 @@ function FourthRow(props) {
           <hr style={{ color: "white", textDecoration: "none" }}></hr>
           <div style={{ color: "white", textDecoration: "none" }}>
             <span style={{ textTransform: "uppercase", fontSize: "1.5em" }}>
-              IMDb{" "}
+              FILMDB{" "}
             </span>
-            Pro See production info at IMDbPro
+            Pro See production info at
+            <a href="/pricepage" className="p-2">
+              FILMDBPro
+            </a>
           </div>
           <hr style={{ color: "white", textDecoration: "none" }}></hr>
           <div>

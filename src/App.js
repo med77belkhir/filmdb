@@ -12,31 +12,31 @@ import Movie from "./Movie";
 import SearchResults from "./SearchResults";
 import UserUpdatePassword from "./components/UserPasswordUpdate";
 import UserDeleteAccount from "./components/UserDeleteAccount";
-import PrivacyPolicy from './PrivacyPolicy';
-import TermsOfService from './TermsOfService';
-import Popular from './Popular';
+import PrivacyPolicy from "./PrivacyPolicy";
+import TermsOfService from "./TermsOfService";
+import Popular from "./Popular";
 import TopRated from "./TopRated";
+import PricePage from "./PricePage";
 function App() {
   return (
-    <>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/signin" element={<SignIn />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/forgotpassword" element={<ForgotPassword />} />
-        <Route path="/updatepassword" element={<UpdatePassword />} />
-        <Route path="/user" element={<User />} />
-        <Route path="/watchlist" element={<Watchlist />} />
-        <Route path="/movie/:id" element={<Movie />} />
-        <Route path="/search" element={<SearchResults />} />
-        <Route path="/update-Password" element={<UserUpdatePassword />} />
-        <Route path="/delete-account" element={<UserDeleteAccount />} />
-        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-        <Route path="/terms-of-service" element={<TermsOfService />} />
-        <Route path="/popular" element={<Popular />} /> 
-        <Route path="/toprated" element={<TopRated />} /> 
-      </Routes>
-    </>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/signin" element={<SignIn />} />
+      <Route path="/signup" element={<SignUp />} />
+      <Route path="/forgotpassword" element={<ForgotPassword />} />
+      <Route path="/updatepassword" element={<UpdatePassword />} />
+      <Route path="/user" element={<User />} />
+      <Route path="/watchlist" element={<Watchlist />} />
+      <Route path="/movie/:id" element={<Movie />} />
+      <Route path="/search" element={<SearchResults />} />
+      <Route path="/update-Password" element={<UserUpdatePassword />} />
+      <Route path="/delete-account" element={<UserDeleteAccount />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+      <Route path="/terms-of-service" element={<TermsOfService />} />
+      <Route path="/popular" element={<Popular />} />
+      <Route path="/toprated" element={<TopRated />} />
+      <Route path="/pricepage" element={<PricePage />} />
+    </Routes>
   );
 }
 

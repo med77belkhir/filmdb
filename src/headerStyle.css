@@ -1,13 +1,23 @@
 /* headerStyle.css */
-body {
-  margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+/* body {
   background-color: #14131A;
   color: #fff;
+} */
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  background-color: white;
+  color: black;
+}
+
+/* Dark theme */
+body.dark-mode {
+  background-color: black;
+  color: white;
 }
 
 .app-bar {
-  background-color: #14131A;
+  background-color: #14131a;
   color: #fff;
   display: flex;
   align-items: center;
@@ -101,7 +111,7 @@ body {
   top: calc(100% + 8px);
   left: 0;
   z-index: 999;
-  background-color: #14131A;
+  background-color: #14131a;
   border: 1px solid #2c2a33;
   border-top: none;
   padding: 8px;

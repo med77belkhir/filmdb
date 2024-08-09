@@ -18,10 +18,26 @@ function Header() {
   const [searchResults, setSearchResults] = useState([]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) {
+      setDarkMode(savedTheme === "dark");
+    }
+  }, []);
+  const toggleDarkMode = () => {
+    const newDarkMode = !darkMode;
+    setDarkMode(newDarkMode);
+    localStorage.setItem("theme", newDarkMode ? "dark" : "light");
+  };
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const { data: { user }, error } = await supabase.auth.getUser();
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
       if (error) {
         console.error("Error fetching user data:", error.message);
       } else {
@@ -112,99 +128,102 @@ function Header() {
   };
 
   return (
-    <>
-      <header className="app-bar">
-        <Link to="/" className="logo-link">
-          <img
-            className="app-bar__logo logo"
-            src="filmdb.png"
-            alt="logo"
-            style={{ width: "100px" }}
-          />
-        </Link>
-        <div className="app-bar__menu" onClick={toggleMenu}>
-          <span className="app-bar__menu-icon">☰</span>
-          <span>Menu</span>
+    <header className={`app-bar ${darkMode ? "dark-mode" : ""}`}>
+      <Link to="/" className="logo-link">
+        <img
+          className="app-bar__logo logo"
+          src="filmdb.png"
+          alt="logo"
+          style={{ width: "100px" }}
+        />
+      </Link>
+      <div className="app-bar__menu" onClick={toggleMenu}>
+        <span className="app-bar__menu-icon">☰</span>
+        <span>Menu</span>
+      </div>
+      {menuOpen && (
+        <div className="header-menu">
+          <ul className="menu-list">
+            <li className="menu-item">
+              <Link to="/popular">Popular</Link>
+            </li>
+            <li className="menu-item">
+              <Link to="/toprated">Top Rated</Link>
+            </li>
+            <li className="menu-item">
+              <Link to="/watchlist">Watchlist</Link>
+            </li>
+          </ul>
         </div>
-        {menuOpen && (
-          <div className="header-menu">
-            <ul className="menu-list">
-              <li className="menu-item">
-                <Link to="/popular">Popular</Link>
-              </li>
-              <li className="menu-item">
-                <Link to="/toprated">Top Rated</Link>
-              </li>
-              <li className="menu-item">
-                <Link to="/watchlist">Watchlist</Link>
-              </li>
-            </ul>
+      )}
+
+      <div className="col mx-3 relative">
+        <form onSubmit={handleSearch} className="d-flex">
+          <input
+            type="text"
+            className="form-control form-control-sm me-2"
+            placeholder="Search..."
+            value={searchTerm}
+            onChange={handleSearchInput}
+            onBlur={handleSearchBlur}
+            onFocus={handleSearchFocus}
+          />
+          <button className="btn btn-primary btn-sm" type="submit">
+            <i className="bi bi-search"></i>
+          </button>
+        </form>
+        {showSearchResults && searchResults.length > 0 && (
+          <div className="search-results-dropdown">
+            {searchResults.map((result, index) => (
+              <div
+                key={index}
+                className="search-result-item d-flex align-items-center"
+                onMouseDown={() => handleSearchResultClick(result)}
+              >
+                {result.poster_path ? (
+                  <img
+                    src={`https://image.tmdb.org/t/p/w185/${result.poster_path}`}
+                    alt={result.title}
+                    className="search-result-image"
+                  />
+                ) : (
+                  <div className="no-image-placeholder">No Image</div>
+                )}
+                <span>{result.title}</span>
+              </div>
+            ))}
           </div>
         )}
+      </div>
 
-        <div className="col mx-3 relative">
-          <form onSubmit={handleSearch} className="d-flex">
-            <input
-              type="text"
-              className="form-control form-control-sm me-2"
-              placeholder="Search..."
-              value={searchTerm}
-              onChange={handleSearchInput}
-              onBlur={handleSearchBlur}
-              onFocus={handleSearchFocus}
-            />
-            <button className="btn btn-primary btn-sm" type="submit">
-              <i className="bi bi-search"></i>
-            </button>
-          </form>
-          {showSearchResults && searchResults.length > 0 && (
-            <div className="search-results-dropdown">
-              {searchResults.map((result, index) => (
-                <div
-                  key={index}
-                  className="search-result-item d-flex align-items-center"
-                  onMouseDown={() => handleSearchResultClick(result)}
-                >
-                  {result.poster_path ? (
-                    <img
-                      src={`https://image.tmdb.org/t/p/w185/${result.poster_path}`}
-                      alt={result.title}
-                      className="search-result-image"
-                    />
-                  ) : (
-                    <div className="no-image-placeholder">No Image</div>
-                  )}
-                  <span>{result.title}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+      <div className="app-bar__watchlist">
+        <Link to="/watchlist" className="nav-link">
+          <span>Watchlist</span>
+        </Link>
+      </div>
 
-        <div className="app-bar__watchlist">
-          <Link to="/watchlist" className="nav-link">
-            <span>Watchlist</span>
+      {user ? (
+        <div className="logout-container">
+          <button className="btn btn-danger" onClick={handleLogout}>
+            Logout
+          </button>
+          <Link to="/user" className="nav-link">
+            <span>Profil</span>
           </Link>
         </div>
-
-        {user ? (
-          <div className="logout-container">
-            <button className="btn btn-danger" onClick={handleLogout}>
-              Logout
-            </button>
-            <Link to="/user" className="nav-link">
-              <span>Profil</span>
-            </Link>
-          </div>
-        ) : (
-          <div className="app-bar__sign-in">
-            <Link to="/signin" className="nav-link">
-              <span>Sign In</span>
-            </Link>
-          </div>
-        )}
-      </header>
-    </>
+      ) : (
+        <div className="app-bar__sign-in">
+          <Link to="/signin" className="nav-link">
+            <span>Sign In</span>
+          </Link>
+        </div>
+      )}
+      <div>
+        <button id="themeToggleBtn" onClick={toggleDarkMode}>
+          Switch to {darkMode ? "Light Mode" : "Dark Mode"}
+        </button>
+      </div>
+    </header>
   );
 }
 
